@@ -41,7 +41,7 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 	private List<Text> value = null;
 	private String delimiter;
 	private String separator;
-	private boolean isZipFile;
+	private Boolean isZipFile;
 	private InputStream is;
 
 	protected int readLine(List<Text> values) throws IOException {
