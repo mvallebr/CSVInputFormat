@@ -39,8 +39,8 @@ public class CSVTestRunner extends Configured implements Tool {
 
 	public int run(String[] args) throws Exception {
 
-		getConf().set("mapreduce.csvinput.quote", "\"");
-		getConf().set("mapreduce.csvinput.separator", ",");
+		getConf().set(CSVTextInputFormat.FORMAT_DELIMITER, "\"");
+		getConf().set(CSVTextInputFormat.FORMAT_SEPARATOR, ",");
 		Job importerJob = new Job(getConf(), "dmp_normalizer");
 		importerJob.setJarByClass(CSVTestRunner.class);
 		importerJob.setMapperClass(TestMapper.class);

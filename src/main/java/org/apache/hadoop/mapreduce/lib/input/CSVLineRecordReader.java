@@ -37,8 +37,8 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 	protected Reader in;
 	private LongWritable key = null;
 	private List<Text> value = null;
-	private String quote = "\"";
-	private String delimiter = ",";
+	private String delimiter;
+	private String separator;
 
 	protected int readLine(List<Text> values) throws IOException {
 		values.clear();// Empty value columns list
@@ -54,9 +54,9 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 			numRead++;
 			sb.append(c);
 			// Check quotes, as delimiter inside quotes don't count
-			if (c == quote.charAt(quoteOffset)) {
+			if (c == delimiter.charAt(quoteOffset)) {
 				quoteOffset++;
-				if (quoteOffset >= quote.length()) {
+				if (quoteOffset >= delimiter.length()) {
 					insideQuote = !insideQuote;
 					quoteOffset = 0;
 				}
@@ -65,9 +65,9 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 			}
 			// Check delimiters, but only those outside of quotes
 			if (!insideQuote) {
-				if (c == delimiter.charAt(delimiterOffset)) {
+				if (c == separator.charAt(delimiterOffset)) {
 					delimiterOffset++;
-					if (delimiterOffset >= delimiter.length()) {
+					if (delimiterOffset >= separator.length()) {
 						foundDelimiter(sb, values, true);
 						delimiterOffset = 0;
 					}
@@ -89,10 +89,10 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		// Found a real delimiter
 		Text text = new Text();
 		String val = (takeDelimiterOut) ? sb.substring(0, sb.length()
-				- delimiter.length()) : sb.toString();
-		if (val.startsWith(quote) && val.endsWith(quote)) {
-			val = val.substring(quote.length(),
-					val.length() - (2 * quote.length()));
+				- separator.length()) : sb.toString();
+		if (val.startsWith(delimiter) && val.endsWith(delimiter)) {
+			val = val.substring(delimiter.length(), val.length()
+					- (2 * delimiter.length()));
 		}
 		text.append(val.getBytes("UTF-8"), 0, val.length());
 		values.add(text);
@@ -104,8 +104,8 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 			throws IOException {
 		FileSplit split = (FileSplit) genericSplit;
 		Configuration job = context.getConfiguration();
-		this.quote = job.get(CSVTextInputFormat.FORMAT_QUOTE, "\"");
-		this.delimiter = job.get(CSVTextInputFormat.FORMAT_DELIMITER, ",");
+		this.delimiter = job.get(CSVTextInputFormat.FORMAT_DELIMITER, "\"");
+		this.separator = job.get(CSVTextInputFormat.FORMAT_SEPARATOR, ",");
 		start = split.getStart();
 		end = start + split.getLength();
 		final Path file = split.getPath();

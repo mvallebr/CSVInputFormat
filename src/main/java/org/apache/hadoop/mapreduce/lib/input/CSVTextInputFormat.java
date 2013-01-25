@@ -21,18 +21,18 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  */
 public class CSVTextInputFormat extends FileInputFormat<LongWritable, List<Text>> {
 
-	public static final String FORMAT_QUOTE = "mapreduce.csvinput.quote";
-	public static final String FORMAT_DELIMITER = "mapreduce.csvinput.separator";
+	public static final String FORMAT_DELIMITER = "mapreduce.csvinput.delimiter";
+	public static final String FORMAT_SEPARATOR = "mapreduce.csvinput.separator";
 
 	@Override
 	public RecordReader<LongWritable, List<Text>> createRecordReader(
 			InputSplit split, TaskAttemptContext context) throws IOException {
 		Configuration conf = context.getConfiguration();
-		String quote = conf.get(FORMAT_QUOTE);
-		String separator = conf.get(FORMAT_DELIMITER);
+		String quote = conf.get(FORMAT_DELIMITER);
+		String separator = conf.get(FORMAT_SEPARATOR);
 		if (null == quote || null == separator) {
 			throw new IOException(
-					"CSVTextInputFormat: missing parameter quote/separator");
+					"CSVTextInputFormat: missing parameter delimiter/separator");
 		}
 		return new CSVLineRecordReader();
 	}
