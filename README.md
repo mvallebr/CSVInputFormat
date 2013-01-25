@@ -9,7 +9,7 @@ The key returned is the line number and the value is a List with the column valu
 
 Example:
 --------------------------------------------------------------------------------
-### If we read this CSV:
+If we read this CSV (note that line 2 is multiline):
 
 	Name, address, email
 	Joe Demo,"2 Demo Street, 
@@ -20,7 +20,7 @@ Example:
 	Jack Example,"1 Example Street, Exampleville, Australia. 2615",jack@example.com
 
 
-### The output is as follows:
+The output is as follows:
 
 
 	==> TestMapper
