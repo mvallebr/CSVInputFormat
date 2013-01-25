@@ -7,6 +7,8 @@ Run BasicTest.java to see it working. Check src/test/resource/test.csv to see a 
 
 The key returned is the line number and the value is a List with the column values
 
+More ideas to improve this are welcome.
+
 Example:
 --------------------------------------------------------------------------------
 If we read this CSV (note that line 2 is multiline):
