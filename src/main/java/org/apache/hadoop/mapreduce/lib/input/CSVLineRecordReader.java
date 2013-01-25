@@ -110,7 +110,7 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		Configuration job = context.getConfiguration();
 		this.delimiter = job.get(CSVTextInputFormat.FORMAT_DELIMITER, "\"");
 		this.separator = job.get(CSVTextInputFormat.FORMAT_SEPARATOR, ",");
-		this.isZipFile = job.getBoolean(CSVTextInputFormat.IS_ZIPFILE, false);
+		this.isZipFile = job.getBoolean(CSVTextInputFormat.IS_ZIPFILE, true);
 		start = split.getStart();
 		end = start + split.getLength();
 		final Path file = split.getPath();
