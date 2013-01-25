@@ -8,16 +8,16 @@ Run BasicTest.java to see it working. Check src/test/resource/test.csv to see a 
 The key returned is the line number and the value is a List with the column values
 
 Example:
+--------------------------------------------------------------------------------
 If we read this CSV:
---------------------------------------------------------------------------------
-Name, address, email
-Joe Demo,"2 Demo Street, 
-Demoville, 
-Australia. 2615",joe@someaddress.com
-Jim Sample,,jim@sample.com
-Don Joe,joe@sample.com
-Jack Example,"1 Example Street, Exampleville, Australia. 2615",jack@example.com
---------------------------------------------------------------------------------
+> Name, address, email
+> Joe Demo,"2 Demo Street, 
+> Demoville, 
+> Australia. 2615",joe@someaddress.com
+> Jim Sample,,jim@sample.com
+> Don Joe,joe@sample.com
+> Jack Example,"1 Example Street, Exampleville, Australia. 2615",jack@example.com
+
 
 The output is as follows:
 
