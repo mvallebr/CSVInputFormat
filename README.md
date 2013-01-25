@@ -7,6 +7,9 @@ Run BasicTest.java to see it working. Check src/test/resource/test.csv to see a 
 
 The key returned is the line number and the value is a List with the column values
 
+Zip files are supported, but be aware that all the files inside a zip are read as 
+if there were a single CSV, the line number (key) doesn't reset.
+
 More ideas to improve this are welcome.
 
 Example:
