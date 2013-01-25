@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -24,50 +25,87 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  * Reads a CSV line. CSV files could be multiline, as they may have line breaks
  * inside a column
  */
-public class CSVLineRecordReader extends RecordReader<LongWritable, Text> {
-	private static final Log LOG = LogFactory.getLog(CSVLineRecordReader.class);
+public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> {
+	// private static final Log LOG =
+	// LogFactory.getLog(CSVLineRecordReader.class);
 
 	private CompressionCodecFactory compressionCodecs = null;
 	private long start;
 	private long pos;
 	private long end;
+	private long lineNumber = 0;
 	protected Reader in;
-	private int maxLineLength;
 	private LongWritable key = null;
-	private Text value = null;
-	private char quote = '"';
+	private List<Text> value = null;
+	private String quote = "\"";
+	private String delimiter = ",";
 
-	protected int readLine(Text text, int maxLineLength, int maxBytesToConsume)
-			throws IOException {
-		text.clear();
+	protected int readLine(List<Text> values) throws IOException {
+		values.clear();// Empty value columns list
 		char c;
 		int numRead = 0;
 		boolean insideQuote = false;
 		StringBuffer sb = new StringBuffer();
 		int i;
+		int quoteOffset = 0, delimiterOffset = 0;
 		// Reads each char from input stream unless eof was reached
 		while ((i = in.read()) != -1) {
 			c = (char) i;
 			numRead++;
 			sb.append(c);
-			if (c == quote)
-				insideQuote = !insideQuote;
-			// A new line outside of a quote is a real csv line breaker
-			if (c == '\n')
-				if (!insideQuote)
+			// Check quotes, as delimiter inside quotes don't count
+			if (c == quote.charAt(quoteOffset)) {
+				quoteOffset++;
+				if (quoteOffset >= quote.length()) {
+					insideQuote = !insideQuote;
+					quoteOffset = 0;
+				}
+			} else {
+				quoteOffset = 0;
+			}
+			// Check delimiters, but only those outside of quotes
+			if (!insideQuote) {
+				if (c == delimiter.charAt(delimiterOffset)) {
+					delimiterOffset++;
+					if (delimiterOffset >= delimiter.length()) {
+						foundDelimiter(sb, values, true);
+						delimiterOffset = 0;
+					}
+				} else {
+					delimiterOffset = 0;
+				}
+				// A new line outside of a quote is a real csv line breaker
+				if (c == '\n') {
 					break;
+				}
+			}
 		}
-		// Appends read text in UTF8
-		text.append(sb.toString().getBytes("UTF-8"), 0, sb.length());
+		foundDelimiter(sb, values, false);
 		return numRead;
+	}
+
+	protected void foundDelimiter(StringBuffer sb, List<Text> values,
+			boolean takeDelimiterOut) throws UnsupportedEncodingException {
+		// Found a real delimiter
+		Text text = new Text();
+		String val = (takeDelimiterOut) ? sb.substring(0, sb.length()
+				- delimiter.length()) : sb.toString();
+		if (val.startsWith(quote) && val.endsWith(quote)) {
+			val = val.substring(quote.length(),
+					val.length() - (2 * quote.length()));
+		}
+		text.append(val.getBytes("UTF-8"), 0, val.length());
+		values.add(text);
+		// Empty string buffer
+		sb.setLength(0);
 	}
 
 	public void initialize(InputSplit genericSplit, TaskAttemptContext context)
 			throws IOException {
 		FileSplit split = (FileSplit) genericSplit;
 		Configuration job = context.getConfiguration();
-		this.maxLineLength = job.getInt("mapred.linerecordreader.maxlength",
-				Integer.MAX_VALUE);
+		this.quote = job.get(CSVTextInputFormat.FORMAT_QUOTE, "\"");
+		this.delimiter = job.get(CSVTextInputFormat.FORMAT_DELIMITER, ",");
 		start = split.getStart();
 		end = start + split.getLength();
 		final Path file = split.getPath();
@@ -93,8 +131,7 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, Text> {
 		in = new BufferedReader(new InputStreamReader(is));
 
 		if (skipFirstLine) { // skip first line and re-establish "start".
-			start += readLine(new Text(), 0,
-					(int) Math.min((long) Integer.MAX_VALUE, end - start));
+			start += readLine(new ArrayList<Text>());
 		}
 		this.pos = start;
 	}
@@ -103,27 +140,13 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, Text> {
 		if (key == null) {
 			key = new LongWritable();
 		}
-		key.set(pos);
+		key.set(lineNumber++);
 		if (value == null) {
-			value = new Text();
+			value = new ArrayList<Text>();
 		}
 		int newSize = 0;
-		while (pos < end) {
-			newSize = readLine(value, maxLineLength,
-					Math.max((int) Math.min(Integer.MAX_VALUE, end - pos),
-							maxLineLength));
-			if (newSize == 0) {
-				break;
-			}
-			pos += newSize;
-			if (newSize < maxLineLength) {
-				break;
-			}
-
-			// line too long. try again
-			LOG.info("Skipped line of size " + newSize + " at pos "
-					+ (pos - newSize));
-		}
+		newSize = readLine(value);
+		pos += newSize;
 		if (newSize == 0) {
 			key = null;
 			value = null;
@@ -139,7 +162,7 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, Text> {
 	}
 
 	@Override
-	public Text getCurrentValue() {
+	public List<Text> getCurrentValue() {
 		return value;
 	}
 

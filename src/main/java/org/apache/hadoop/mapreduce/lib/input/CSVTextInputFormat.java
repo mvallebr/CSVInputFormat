@@ -1,6 +1,7 @@
 package org.apache.hadoop.mapreduce.lib.input;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -18,17 +19,17 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  * lines, even if the CSV has multiple lines inside a single column
  * 
  */
-public class CSVTextInputFormat extends FileInputFormat<LongWritable, Text> {
+public class CSVTextInputFormat extends FileInputFormat<LongWritable, List<Text>> {
 
-	private static final String FORMAT_QUOTE = "mapreduce.csvinput.quote";
-	private static final String FORMAT_SEPARATOR = "mapreduce.csvinput.separator";
+	public static final String FORMAT_QUOTE = "mapreduce.csvinput.quote";
+	public static final String FORMAT_DELIMITER = "mapreduce.csvinput.separator";
 
 	@Override
-	public RecordReader<LongWritable, Text> createRecordReader(
+	public RecordReader<LongWritable, List<Text>> createRecordReader(
 			InputSplit split, TaskAttemptContext context) throws IOException {
 		Configuration conf = context.getConfiguration();
 		String quote = conf.get(FORMAT_QUOTE);
-		String separator = conf.get(FORMAT_SEPARATOR);
+		String separator = conf.get(FORMAT_DELIMITER);
 		if (null == quote || null == separator) {
 			throw new IOException(
 					"CSVTextInputFormat: missing parameter quote/separator");

@@ -13,10 +13,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-
 public class CSVTestRunner extends Configured implements Tool {
-	private static final Logger logger = Logger
-			.getLogger(CSVTestRunner.class.getName());
+	private static final Logger logger = Logger.getLogger(CSVTestRunner.class
+			.getName());
 
 	private static final String INPUT_PATH_PREFIX = "./src/test/resources/";
 
@@ -38,14 +37,13 @@ public class CSVTestRunner extends Configured implements Tool {
 		}
 	}
 
-	public int run(String[] args) throws Exception {		
+	public int run(String[] args) throws Exception {
 
 		getConf().set("mapreduce.csvinput.quote", "\"");
 		getConf().set("mapreduce.csvinput.separator", ",");
 		Job importerJob = new Job(getConf(), "dmp_normalizer");
 		importerJob.setJarByClass(CSVTestRunner.class);
-		importerJob.setMapperClass(ImporterMapper.class);
-		importerJob.setReducerClass(ImporterReducer.class);
+		importerJob.setMapperClass(TestMapper.class);
 
 		importerJob.setInputFormatClass(CSVTextInputFormat.class);
 		importerJob.setOutputFormatClass(NullOutputFormat.class);
