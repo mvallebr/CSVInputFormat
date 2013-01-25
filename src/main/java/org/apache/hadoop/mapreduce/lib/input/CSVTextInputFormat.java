@@ -23,13 +23,14 @@ public class CSVTextInputFormat extends FileInputFormat<LongWritable, List<Text>
 
 	public static final String FORMAT_DELIMITER = "mapreduce.csvinput.delimiter";
 	public static final String FORMAT_SEPARATOR = "mapreduce.csvinput.separator";
+	public static final String IS_ZIPFILE = "mapreduce.csvinput.zipfile";
 
 	@Override
 	public RecordReader<LongWritable, List<Text>> createRecordReader(
 			InputSplit split, TaskAttemptContext context) throws IOException {
 		Configuration conf = context.getConfiguration();
 		String quote = conf.get(FORMAT_DELIMITER);
-		String separator = conf.get(FORMAT_SEPARATOR);
+		String separator = conf.get(FORMAT_SEPARATOR);		
 		if (null == quote || null == separator) {
 			throw new IOException(
 					"CSVTextInputFormat: missing parameter delimiter/separator");

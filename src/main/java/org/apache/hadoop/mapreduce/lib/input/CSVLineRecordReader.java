@@ -1,5 +1,6 @@
 package org.apache.hadoop.mapreduce.lib.input;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +9,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipInputStream;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -39,6 +41,8 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 	private List<Text> value = null;
 	private String delimiter;
 	private String separator;
+	private boolean isZipFile;
+	private InputStream is;
 
 	protected int readLine(List<Text> values) throws IOException {
 		values.clear();// Empty value columns list
@@ -106,6 +110,7 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		Configuration job = context.getConfiguration();
 		this.delimiter = job.get(CSVTextInputFormat.FORMAT_DELIMITER, "\"");
 		this.separator = job.get(CSVTextInputFormat.FORMAT_SEPARATOR, ",");
+		this.isZipFile = job.getBoolean(CSVTextInputFormat.IS_ZIPFILE, false);
 		start = split.getStart();
 		end = start + split.getLength();
 		final Path file = split.getPath();
@@ -115,24 +120,24 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		// open the file and seek to the start of the split
 		FileSystem fs = file.getFileSystem(job);
 		FSDataInputStream fileIn = fs.open(split.getPath());
-		boolean skipFirstLine = false;
-		InputStream is;
+
 		if (codec != null) {
 			is = codec.createInputStream(fileIn);
 			end = Long.MAX_VALUE;
 		} else {
 			if (start != 0) {
-				skipFirstLine = true;
 				--start;
 				fileIn.seek(start);
 			}
 			is = fileIn;
 		}
+		if (isZipFile) {
+			ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
+			zis.getNextEntry();
+			is = zis;
+		}
 		in = new BufferedReader(new InputStreamReader(is));
 
-		if (skipFirstLine) { // skip first line and re-establish "start".
-			start += readLine(new ArrayList<Text>());
-		}
 		this.pos = start;
 	}
 
@@ -144,15 +149,25 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		if (value == null) {
 			value = new ArrayList<Text>();
 		}
-		int newSize = 0;
-		newSize = readLine(value);
-		pos += newSize;
-		if (newSize == 0) {
-			key = null;
-			value = null;
-			return false;
-		} else {
-			return true;
+		while (true) {
+			int newSize = 0;
+			newSize = readLine(value);
+			pos += newSize;
+			if (newSize == 0) {
+				if (isZipFile) {
+					ZipInputStream zis = (ZipInputStream) is;
+					if (zis.getNextEntry() != null) {
+						is = zis;
+						in = new BufferedReader(new InputStreamReader(is));
+						continue;
+					}
+				}
+				key = null;
+				value = null;
+				return false;
+			} else {
+				return true;
+			}
 		}
 	}
 

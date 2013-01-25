@@ -41,6 +41,7 @@ public class CSVTestRunner extends Configured implements Tool {
 
 		getConf().set(CSVTextInputFormat.FORMAT_DELIMITER, "\"");
 		getConf().set(CSVTextInputFormat.FORMAT_SEPARATOR, ",");
+		getConf().setBoolean(CSVTextInputFormat.IS_ZIPFILE, true);
 		Job importerJob = new Job(getConf(), "dmp_normalizer");
 		importerJob.setJarByClass(CSVTestRunner.class);
 		importerJob.setMapperClass(TestMapper.class);
