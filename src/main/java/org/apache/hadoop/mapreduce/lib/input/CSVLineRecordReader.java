@@ -44,6 +44,28 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 	private Boolean isZipFile;
 	private InputStream is;
 
+	public CSVLineRecordReader() {
+
+	}
+
+	public CSVLineRecordReader(InputStream is, Configuration conf) throws IOException {
+		init(is, conf);
+	}
+
+	public void init(InputStream is, Configuration conf) throws IOException {
+		this.delimiter = conf.get(CSVTextInputFormat.FORMAT_DELIMITER, "\"");
+		this.separator = conf.get(CSVTextInputFormat.FORMAT_SEPARATOR, ",");
+		this.isZipFile = conf.getBoolean(CSVTextInputFormat.IS_ZIPFILE, true);
+		if (isZipFile) {
+			@SuppressWarnings("resource")
+			ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
+			zis.getNextEntry();
+			is = zis;
+		}
+		this.is = is;
+		this.in = new BufferedReader(new InputStreamReader(is));
+	}
+
 	protected int readLine(List<Text> values) throws IOException {
 		values.clear();// Empty value columns list
 		char c;
@@ -88,15 +110,14 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		return numRead;
 	}
 
-	protected void foundDelimiter(StringBuffer sb, List<Text> values,
-			boolean takeDelimiterOut) throws UnsupportedEncodingException {
+	protected void foundDelimiter(StringBuffer sb, List<Text> values, boolean takeDelimiterOut)
+			throws UnsupportedEncodingException {
 		// Found a real delimiter
 		Text text = new Text();
-		String val = (takeDelimiterOut) ? sb.substring(0, sb.length()
-				- separator.length()) : sb.toString();
+		String val = (takeDelimiterOut) ? sb.substring(0, sb.length() - separator.length()) : sb.toString();
 		if (val.startsWith(delimiter) && val.endsWith(delimiter)) {
-			val = val.substring(delimiter.length(), val.length()
-					- (2 * delimiter.length()));
+			val = (val.length() - (2 * delimiter.length()) > 0) ? val.substring(delimiter.length(), val.length()
+					- (2 * delimiter.length())) : "";
 		}
 		text.append(val.getBytes("UTF-8"), 0, val.length());
 		values.add(text);
@@ -104,13 +125,10 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		sb.setLength(0);
 	}
 
-	public void initialize(InputSplit genericSplit, TaskAttemptContext context)
-			throws IOException {
+	public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException {
 		FileSplit split = (FileSplit) genericSplit;
 		Configuration job = context.getConfiguration();
-		this.delimiter = job.get(CSVTextInputFormat.FORMAT_DELIMITER, "\"");
-		this.separator = job.get(CSVTextInputFormat.FORMAT_SEPARATOR, ",");
-		this.isZipFile = job.getBoolean(CSVTextInputFormat.IS_ZIPFILE, true);
+
 		start = split.getStart();
 		end = start + split.getLength();
 		final Path file = split.getPath();
@@ -131,14 +149,9 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 			}
 			is = fileIn;
 		}
-		if (isZipFile) {
-			ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
-			zis.getNextEntry();
-			is = zis;
-		}
-		in = new BufferedReader(new InputStreamReader(is));
 
 		this.pos = start;
+		init(is, job);
 	}
 
 	public boolean nextKeyValue() throws IOException {
@@ -195,6 +208,11 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 	public synchronized void close() throws IOException {
 		if (in != null) {
 			in.close();
+			in = null;
+		}
+		if (is != null) {
+			is.close();
+			is = null;
 		}
 	}
 }
