@@ -17,28 +17,23 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  */
 public class CSVTextInputFormat extends FileInputFormat<LongWritable, List<Text>> {
 
-	public static final String FORMAT_DELIMITER = "mapreduce.csvinput.delimiter";
-	public static final String FORMAT_SEPARATOR = "mapreduce.csvinput.separator";
-	public static final String IS_ZIPFILE = "mapreduce.csvinput.zipfile";
-
 	@Override
-	public RecordReader<LongWritable, List<Text>> createRecordReader(
-			InputSplit split, TaskAttemptContext context) throws IOException {
+	public RecordReader<LongWritable, List<Text>> createRecordReader(InputSplit split, TaskAttemptContext context)
+			throws IOException {
 		Configuration conf = context.getConfiguration();
-		String quote = conf.get(FORMAT_DELIMITER);
-		String separator = conf.get(FORMAT_SEPARATOR);		
+		String quote = conf.get(CSVLineRecordReader.FORMAT_DELIMITER);
+		String separator = conf.get(CSVLineRecordReader.FORMAT_SEPARATOR);
 		if (null == quote || null == separator) {
-			throw new IOException(
-					"CSVTextInputFormat: missing parameter delimiter/separator");
+			throw new IOException("CSVTextInputFormat: missing parameter delimiter/separator");
 		}
 		return new CSVLineRecordReader();
 	}
 
-//	@Override
-//	protected boolean isSplitable(JobContext context, Path file) {
-//		CompressionCodec codec = new CompressionCodecFactory(
-//				context.getConfiguration()).getCodec(file);
-//		return codec == null;
-//	}
+	// @Override
+	// protected boolean isSplitable(JobContext context, Path file) {
+	// CompressionCodec codec = new CompressionCodecFactory(
+	// context.getConfiguration()).getCodec(file);
+	// return codec == null;
+	// }
 
 }

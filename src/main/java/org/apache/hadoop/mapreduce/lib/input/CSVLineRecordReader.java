@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
@@ -30,12 +29,17 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> {
 	// private static final Log LOG =
 	// LogFactory.getLog(CSVLineRecordReader.class);
+	public static final String FORMAT_DELIMITER = "mapreduce.csvinput.delimiter";
+	public static final String FORMAT_SEPARATOR = "mapreduce.csvinput.separator";
+	public static final String IS_ZIPFILE = "mapreduce.csvinput.zipfile";
+	public static final String DEFAULT_DELIMITER = "\"";
+	public static final String DEFAULT_SEPARATOR = ",";
+	public static final boolean DEFAULT_ZIP = true;
 
 	private CompressionCodecFactory compressionCodecs = null;
 	private long start;
 	private long pos;
-	private long end;
-	private long lineNumber = 0;
+	private long end;	
 	protected Reader in;
 	private LongWritable key = null;
 	private List<Text> value = null;
@@ -53,9 +57,9 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 	}
 
 	public void init(InputStream is, Configuration conf) throws IOException {
-		this.delimiter = conf.get(CSVTextInputFormat.FORMAT_DELIMITER, "\"");
-		this.separator = conf.get(CSVTextInputFormat.FORMAT_SEPARATOR, ",");
-		this.isZipFile = conf.getBoolean(CSVTextInputFormat.IS_ZIPFILE, true);
+		this.delimiter = conf.get(FORMAT_DELIMITER, DEFAULT_DELIMITER);
+		this.separator = conf.get(FORMAT_SEPARATOR, DEFAULT_SEPARATOR);
+		this.isZipFile = conf.getBoolean(IS_ZIPFILE, DEFAULT_ZIP);
 		if (isZipFile) {
 			@SuppressWarnings("resource")
 			ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
@@ -144,7 +148,6 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 			end = Long.MAX_VALUE;
 		} else {
 			if (start != 0) {
-				--start;
 				fileIn.seek(start);
 			}
 			is = fileIn;
@@ -158,11 +161,13 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		if (key == null) {
 			key = new LongWritable();
 		}
-		key.set(lineNumber++);
+		key.set(pos);
 		if (value == null) {
-			value = new ArrayList<Text>();
+			value = new ArrayListTextWritable();
 		}
 		while (true) {
+			if (pos >= end)
+				return false;
 			int newSize = 0;
 			newSize = readLine(value);
 			pos += newSize;

@@ -4,10 +4,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.CSVLineRecordReader;
 import org.apache.hadoop.mapreduce.lib.input.CSVNLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
-import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.lib.map.MultithreadedMapper;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -39,63 +38,25 @@ public class CSVTestRunner extends Configured implements Tool {
 
 	public int run(String[] args) throws Exception {
 
-		getConf().set(CSVNLineInputFormat.FORMAT_DELIMITER, "\"");
-		getConf().set(CSVNLineInputFormat.FORMAT_SEPARATOR, ",");
-		getConf().setInt(CSVNLineInputFormat.LINES_PER_MAP, 10);
-		getConf().setBoolean(CSVNLineInputFormat.IS_ZIPFILE, true);
-		Job importerJob = new Job(getConf(), "dmp_normalizer");
-		importerJob.setJarByClass(CSVTestRunner.class);
+		getConf().set(CSVLineRecordReader.FORMAT_DELIMITER, "\"");
+		getConf().set(CSVLineRecordReader.FORMAT_SEPARATOR, ",");
+		getConf().setInt(CSVNLineInputFormat.LINES_PER_MAP, 1);
+		getConf().setBoolean(CSVLineRecordReader.IS_ZIPFILE, false);
+		Job csvJob = new Job(getConf(), "csv_test_job");
+		csvJob.setJarByClass(CSVTestRunner.class);
+		csvJob.setNumReduceTasks(0);
 
-		MultithreadedMapper.setMapperClass(importerJob, TestMapper.class);
-		MultithreadedMapper.setNumberOfThreads(importerJob, 10);
-		importerJob.setMapperClass(MultithreadedMapper.class);
-
+		MultithreadedMapper.setMapperClass(csvJob, TestMapper.class);
+		MultithreadedMapper.setNumberOfThreads(csvJob, 10);
+		csvJob.setMapperClass(MultithreadedMapper.class);
 		// To run without multithread, use the following line instead of the 3
 		// above
-		// importerJob.setMapperClass(TestMapper.class);
+		// csvJob.setMapperClass(TestMapper.class);
 
-		importerJob.setInputFormatClass(CSVNLineInputFormat.class);
-		importerJob.setOutputFormatClass(NullOutputFormat.class);
-		FileInputFormat.setInputPaths(importerJob, new Path(INPUT_PATH_PREFIX));
-
-		ControlledJob importerControlledJob = new ControlledJob(importerJob, null);
-		JobControl jc = new JobControl("DMPImporter");
-		jc.addJob(importerControlledJob);
-
-		logger.info("Starting controller thread ");
-		// start the controller in a different thread
-		Thread theController = new Thread(jc);
-		theController.start();
-		logger.info("Controller thread started ");
-		// poll until everything is done,
-		// in the meantime justs output some status message
-		int c = 0;
-		final int SECOND = 1000; // number of miliseconds in a second
-		final int NUM_SECONDs = 10; // number of seconds to wait before printing
-									// status
-		while (!jc.allFinished()) {
-			// Sleep sometime before printing status again
-			try {
-				Thread.sleep(SECOND);
-			} catch (Exception e) {
-			}
-			if ((c++ % NUM_SECONDs != 0) || (jc.allFinished()))
-				continue;
-			logger.info("-------------------------------------------------------");
-			logger.info("Jobs in waiting state: " + jc.getWaitingJobList().size());
-			logger.info("Jobs in ready state: " + jc.getReadyJobsList().size());
-			logger.info("Jobs in running state: " + jc.getRunningJobList().size());
-			logger.info("Jobs in success state: " + jc.getSuccessfulJobList().size());
-			logger.info("Jobs in failed state: " + jc.getFailedJobList().size());
-			logger.info("-------------------------------------------------------");
-		}
-
-		if (importerControlledJob.getJobState() != ControlledJob.State.FAILED
-				&& importerControlledJob.getJobState() != ControlledJob.State.DEPENDENT_FAILED
-				&& importerControlledJob.getJobState() != ControlledJob.State.SUCCESS) {
-			String states = "importerControlledJob:  " + importerControlledJob.getJobState() + "\n";
-			throw new Exception("The state of importerControlledJob is not in a complete state\n" + states);
-		}
+		csvJob.setInputFormatClass(CSVNLineInputFormat.class);
+		csvJob.setOutputFormatClass(NullOutputFormat.class);
+		FileInputFormat.setInputPaths(csvJob, new Path(INPUT_PATH_PREFIX));
+		csvJob.waitForCompletion(true);
 
 		logger.info("Process ended");
 

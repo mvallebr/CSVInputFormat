@@ -25,17 +25,16 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  */
 public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text>> {
 
-	public static final String FORMAT_DELIMITER = "mapreduce.csvinput.delimiter";
-	public static final String FORMAT_SEPARATOR = "mapreduce.csvinput.separator";
-	public static final String IS_ZIPFILE = "mapreduce.csvinput.zipfile";
 	public static final String LINES_PER_MAP = "mapreduce.input.lineinputformat.linespermap";
+
+	public static final int DEFAULT_LINES_PER_MAP = 1;
 
 	@Override
 	public RecordReader<LongWritable, List<Text>> createRecordReader(InputSplit split, TaskAttemptContext context)
 			throws IOException {
 		Configuration conf = context.getConfiguration();
-		String quote = conf.get(FORMAT_DELIMITER);
-		String separator = conf.get(FORMAT_SEPARATOR);
+		String quote = conf.get(CSVLineRecordReader.FORMAT_DELIMITER, CSVLineRecordReader.DEFAULT_DELIMITER);
+		String separator = conf.get(CSVLineRecordReader.FORMAT_SEPARATOR, CSVLineRecordReader.DEFAULT_SEPARATOR);
 		if (null == quote || null == separator) {
 			throw new IOException("CSVTextInputFormat: missing parameter delimiter/separator");
 		}
@@ -53,7 +52,8 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 		List<InputSplit> splits = new ArrayList<InputSplit>();
 		int numLinesPerSplit = getNumLinesPerSplit(job);
 		for (FileStatus status : listStatus(job)) {
-			splits.addAll(getSplitsForFile(status, job.getConfiguration(), numLinesPerSplit));
+			List<FileSplit> fileSplits = getSplitsForFile(status, job.getConfiguration(), numLinesPerSplit);
+			splits.addAll(fileSplits);
 		}
 		return splits;
 	}
@@ -83,9 +83,9 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 					// we move back the upper split limits of each split
 					// by one character here.
 					if (begin == 0) {
-						splits.add(new FileSplit(fileName, begin, length - 1, new String[] {}));
+						splits.add(new FileSplit(fileName, begin, length, new String[] {}));
 					} else {
-						splits.add(new FileSplit(fileName, begin - 1, length, new String[] {}));
+						splits.add(new FileSplit(fileName, begin, length, new String[] {}));
 					}
 					begin += length;
 					length = 0;
@@ -128,7 +128,7 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 	 * @return the number of lines per split
 	 */
 	public static int getNumLinesPerSplit(JobContext job) {
-		return job.getConfiguration().getInt(LINES_PER_MAP, 1);
+		return job.getConfiguration().getInt(LINES_PER_MAP, DEFAULT_LINES_PER_MAP);
 	}
 
 }
