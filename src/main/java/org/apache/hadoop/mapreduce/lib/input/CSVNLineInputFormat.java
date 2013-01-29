@@ -79,13 +79,8 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 				numLines++;
 				length += num;
 				if (numLines == numLinesPerSplit) {
-					// NLineInputFormat uses LineRecordReader, which always
-					// reads
-					// (and consumes) at least one character out of its upper
-					// split
-					// boundary. So to make sure that each mapper gets N lines,
-					// we
-					// move back the upper split limits of each split
+					// To make sure that each mapper gets N lines,
+					// we move back the upper split limits of each split
 					// by one character here.
 					if (begin == 0) {
 						splits.add(new FileSplit(fileName, begin, length - 1, new String[] {}));
@@ -106,6 +101,11 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 			}
 		}
 		return splits;
+	}
+
+	@Override
+	protected boolean isSplitable(JobContext context, Path filename) {
+		return true;
 	}
 
 	/**

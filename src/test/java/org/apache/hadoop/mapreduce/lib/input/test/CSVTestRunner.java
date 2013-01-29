@@ -8,6 +8,7 @@ import org.apache.hadoop.mapreduce.lib.input.CSVNLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
+import org.apache.hadoop.mapreduce.lib.map.MultithreadedMapper;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -40,11 +41,18 @@ public class CSVTestRunner extends Configured implements Tool {
 
 		getConf().set(CSVNLineInputFormat.FORMAT_DELIMITER, "\"");
 		getConf().set(CSVNLineInputFormat.FORMAT_SEPARATOR, ",");
-		getConf().setInt(CSVNLineInputFormat.LINES_PER_MAP, 100);
+		getConf().setInt(CSVNLineInputFormat.LINES_PER_MAP, 10);
 		getConf().setBoolean(CSVNLineInputFormat.IS_ZIPFILE, true);
 		Job importerJob = new Job(getConf(), "dmp_normalizer");
 		importerJob.setJarByClass(CSVTestRunner.class);
-		importerJob.setMapperClass(TestMapper.class);
+
+		MultithreadedMapper.setMapperClass(importerJob, TestMapper.class);
+		MultithreadedMapper.setNumberOfThreads(importerJob, 10);
+		importerJob.setMapperClass(MultithreadedMapper.class);
+
+		// To run without multithread, use the following line instead of the 3
+		// above
+		// importerJob.setMapperClass(TestMapper.class);
 
 		importerJob.setInputFormatClass(CSVNLineInputFormat.class);
 		importerJob.setOutputFormatClass(NullOutputFormat.class);
