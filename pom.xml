@@ -4,6 +4,7 @@
 	<groupId>com.s1mbi0se.hadoop</groupId>
 	<artifactId>CSVInputFormat</artifactId>
 	<version>0.1</version>
+	<packaging>jar</packaging>
 	<build>
 		<plugins>
 			<plugin>
@@ -13,23 +14,6 @@
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id> <!-- this is used for inheritance merges -->
-						<phase>package</phase> <!-- bind to the packaging phase -->
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
