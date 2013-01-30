@@ -25,10 +25,11 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 /**
  * Reads a CSV line. CSV files could be multiline, as they may have line breaks
  * inside a column
+ * 
+ * @author mvallebr
+ * 
  */
 public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> {
-	// private static final Log LOG =
-	// LogFactory.getLog(CSVLineRecordReader.class);
 	public static final String FORMAT_DELIMITER = "mapreduce.csvinput.delimiter";
 	public static final String FORMAT_SEPARATOR = "mapreduce.csvinput.separator";
 	public static final String IS_ZIPFILE = "mapreduce.csvinput.zipfile";
@@ -48,14 +49,37 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 	private Boolean isZipFile;
 	private InputStream is;
 
+	/**
+	 * Default constructor is needed when called by reflection from hadoop
+	 * 
+	 */
 	public CSVLineRecordReader() {
-
 	}
 
+	/**
+	 * Constructor to be called from FileInputFormat.createRecordReader
+	 * 
+	 * @param is
+	 *            - the input stream
+	 * @param conf
+	 *            - hadoop conf
+	 * @throws IOException
+	 */
 	public CSVLineRecordReader(InputStream is, Configuration conf) throws IOException {
 		init(is, conf);
 	}
 
+	/**
+	 * reads configuration set in the runner, setting delimiter and separator to
+	 * be used to process the CSV file . If isZipFile is set, creates a
+	 * ZipInputStream on top of the InputStream
+	 * 
+	 * @param is
+	 *            - the input stream
+	 * @param conf
+	 *            - hadoop conf
+	 * @throws IOException
+	 */
 	public void init(InputStream is, Configuration conf) throws IOException {
 		this.delimiter = conf.get(FORMAT_DELIMITER, DEFAULT_DELIMITER);
 		this.separator = conf.get(FORMAT_SEPARATOR, DEFAULT_SEPARATOR);
@@ -70,6 +94,15 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		this.in = new BufferedReader(new InputStreamReader(is));
 	}
 
+	/**
+	 * Parses a line from the CSV, from the current stream position. It stops
+	 * parsing when it finds a new line char outside two delimiters
+	 * 
+	 * @param values
+	 *            List of column values parsed from the current CSV line
+	 * @return number of chars processed from the stream
+	 * @throws IOException
+	 */
 	protected int readLine(List<Text> values) throws IOException {
 		values.clear();// Empty value columns list
 		char c;
@@ -114,6 +147,20 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		return numRead;
 	}
 
+	/**
+	 * Helper function that adds a new value to the values list passed as
+	 * argument.
+	 * 
+	 * @param sb
+	 *            StringBuffer that has the value to be added
+	 * @param values
+	 *            values list
+	 * @param takeDelimiterOut
+	 *            should be true when called in the middle of the line, when a
+	 *            delimiter was found, and false when sb contains the line
+	 *            ending
+	 * @throws UnsupportedEncodingException
+	 */
 	protected void foundDelimiter(StringBuffer sb, List<Text> values, boolean takeDelimiterOut)
 			throws UnsupportedEncodingException {
 		// Found a real delimiter
@@ -129,6 +176,13 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		sb.setLength(0);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.apache.hadoop.mapreduce.RecordReader#initialize(org.apache.hadoop
+	 * .mapreduce.InputSplit, org.apache.hadoop.mapreduce.TaskAttemptContext)
+	 */
 	public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException {
 		FileSplit split = (FileSplit) genericSplit;
 		Configuration job = context.getConfiguration();
@@ -157,6 +211,11 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		init(is, job);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.hadoop.mapreduce.RecordReader#nextKeyValue()
+	 */
 	public boolean nextKeyValue() throws IOException {
 		if (key == null) {
 			key = new LongWritable();
@@ -190,18 +249,30 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.hadoop.mapreduce.RecordReader#getCurrentKey()
+	 */
 	@Override
 	public LongWritable getCurrentKey() {
 		return key;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.hadoop.mapreduce.RecordReader#getCurrentValue()
+	 */
 	@Override
 	public List<Text> getCurrentValue() {
 		return value;
 	}
 
-	/**
-	 * Get the progress within the split
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.hadoop.mapreduce.RecordReader#getProgress()
 	 */
 	public float getProgress() {
 		if (start == end) {
@@ -211,6 +282,11 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.hadoop.mapreduce.RecordReader#close()
+	 */
 	public synchronized void close() throws IOException {
 		if (in != null) {
 			in.close();

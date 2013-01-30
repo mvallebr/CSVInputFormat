@@ -22,6 +22,9 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  * lines, even if the CSV has multiple lines inside a single column. Also
  * implements the getSplits method so splits are made by lines
  * 
+ * 
+ * @author mvallebr
+ * 
  */
 public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text>> {
 
@@ -29,6 +32,14 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 
 	public static final int DEFAULT_LINES_PER_MAP = 1;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.apache.hadoop.mapreduce.InputFormat#createRecordReader(org.apache
+	 * .hadoop.mapreduce.InputSplit,
+	 * org.apache.hadoop.mapreduce.TaskAttemptContext)
+	 */
 	@Override
 	public RecordReader<LongWritable, List<Text>> createRecordReader(InputSplit split, TaskAttemptContext context)
 			throws IOException {
@@ -58,6 +69,19 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 		return splits;
 	}
 
+	/**
+	 * 
+	 * Uses CSVLineRecordReader to split the file in lines
+	 * 
+	 * @param status
+	 *            file status
+	 * @param conf
+	 *            hadoop conf
+	 * @param numLinesPerSplit
+	 *            number of lines that should exist on each split
+	 * @return list of file splits to be processed.
+	 * @throws IOException
+	 */
 	public static List<FileSplit> getSplitsForFile(FileStatus status, Configuration conf, int numLinesPerSplit)
 			throws IOException {
 		List<FileSplit> splits = new ArrayList<FileSplit>();
@@ -103,6 +127,13 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 		return splits;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.apache.hadoop.mapreduce.lib.input.FileInputFormat#isSplitable(org
+	 * .apache.hadoop.mapreduce.JobContext, org.apache.hadoop.fs.Path)
+	 */
 	@Override
 	protected boolean isSplitable(JobContext context, Path filename) {
 		return true;

@@ -14,9 +14,15 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  * Configurable CSV line reader. Variant of TextInputReader that reads CSV
  * lines, even if the CSV has multiple lines inside a single column
  * 
+ *
+ * @author mvallebr
+ *
  */
 public class CSVTextInputFormat extends FileInputFormat<LongWritable, List<Text>> {
 
+	/* (non-Javadoc)
+	 * @see org.apache.hadoop.mapreduce.InputFormat#createRecordReader(org.apache.hadoop.mapreduce.InputSplit, org.apache.hadoop.mapreduce.TaskAttemptContext)
+	 */
 	@Override
 	public RecordReader<LongWritable, List<Text>> createRecordReader(InputSplit split, TaskAttemptContext context)
 			throws IOException {
@@ -28,12 +34,5 @@ public class CSVTextInputFormat extends FileInputFormat<LongWritable, List<Text>
 		}
 		return new CSVLineRecordReader();
 	}
-
-	// @Override
-	// protected boolean isSplitable(JobContext context, Path file) {
-	// CompressionCodec codec = new CompressionCodecFactory(
-	// context.getConfiguration()).getCodec(file);
-	// return codec == null;
-	// }
 
 }
