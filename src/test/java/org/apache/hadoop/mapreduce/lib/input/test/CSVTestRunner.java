@@ -17,11 +17,12 @@ public class CSVTestRunner extends Configured implements Tool {
 	private static final Logger logger = Logger.getLogger(CSVTestRunner.class.getName());
 
 	private static final String INPUT_PATH_PREFIX = "./src/test/resources/";
+	//private static final String INPUT_PATH_PREFIX = "/tmp/importer_tests/";
 
 	public static void main(String[] args) throws Exception {
 		int res = -1;
 		try {
-			logger.info("Initializing Importer WTF");
+			logger.info("Initializing CSV Test Runner");
 			CSVTestRunner importer = new CSVTestRunner();
 
 			// Let ToolRunner handle generic command-line options and run hadoop
@@ -40,22 +41,22 @@ public class CSVTestRunner extends Configured implements Tool {
 
 		getConf().set(CSVLineRecordReader.FORMAT_DELIMITER, "\"");
 		getConf().set(CSVLineRecordReader.FORMAT_SEPARATOR, ",");
-		getConf().setInt(CSVNLineInputFormat.LINES_PER_MAP, 1);
+		getConf().setInt(CSVNLineInputFormat.LINES_PER_MAP, 40000);
 		getConf().setBoolean(CSVLineRecordReader.IS_ZIPFILE, false);
 		Job csvJob = new Job(getConf(), "csv_test_job");
 		csvJob.setJarByClass(CSVTestRunner.class);
-		csvJob.setNumReduceTasks(0);
-
+		csvJob.setNumReduceTasks(0);		
 		MultithreadedMapper.setMapperClass(csvJob, TestMapper.class);
-		MultithreadedMapper.setNumberOfThreads(csvJob, 10);
+		MultithreadedMapper.setNumberOfThreads(csvJob, 1);
 		csvJob.setMapperClass(MultithreadedMapper.class);
 		// To run without multithread, use the following line instead of the 3
 		// above
-		// csvJob.setMapperClass(TestMapper.class);
-
+		// csvJob.setMapperClass(TestMapper.class);		
 		csvJob.setInputFormatClass(CSVNLineInputFormat.class);
 		csvJob.setOutputFormatClass(NullOutputFormat.class);
 		FileInputFormat.setInputPaths(csvJob, new Path(INPUT_PATH_PREFIX));
+		logger.info("Process will begin");
+		
 		csvJob.waitForCompletion(true);
 
 		logger.info("Process ended");

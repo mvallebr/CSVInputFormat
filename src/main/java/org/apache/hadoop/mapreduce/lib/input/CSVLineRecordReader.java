@@ -39,7 +39,7 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 	private CompressionCodecFactory compressionCodecs = null;
 	private long start;
 	private long pos;
-	private long end;	
+	private long end;
 	protected Reader in;
 	private LongWritable key = null;
 	private List<Text> value = null;
@@ -162,6 +162,7 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 			key = new LongWritable();
 		}
 		key.set(pos);
+
 		if (value == null) {
 			value = new ArrayListTextWritable();
 		}

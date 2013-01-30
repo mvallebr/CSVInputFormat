@@ -83,9 +83,9 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 					// we move back the upper split limits of each split
 					// by one character here.
 					if (begin == 0) {
-						splits.add(new FileSplit(fileName, begin, length, new String[] {}));
+						splits.add(new FileSplit(fileName, begin, length - 1, new String[] {}));
 					} else {
-						splits.add(new FileSplit(fileName, begin, length, new String[] {}));
+						splits.add(new FileSplit(fileName, begin, length - 1, new String[] {}));
 					}
 					begin += length;
 					length = 0;

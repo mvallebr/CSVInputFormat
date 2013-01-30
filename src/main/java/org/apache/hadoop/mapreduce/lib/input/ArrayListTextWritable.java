@@ -11,7 +11,6 @@ import org.apache.hadoop.io.Writable;
 public class ArrayListTextWritable extends ArrayList<Text> implements Writable {
 	private static final long serialVersionUID = -6737762624115237320L;
 
-
 	@Override
 	public void write(DataOutput dataoutput) throws IOException {
 		dataoutput.writeInt(this.size());
@@ -22,11 +21,12 @@ public class ArrayListTextWritable extends ArrayList<Text> implements Writable {
 
 	@Override
 	public void readFields(DataInput datainput) throws IOException {
-		int count = datainput.readInt();
+		this.clear();
+		int count = datainput.readInt();		
 		for (int i = 0; i < count; i++) {
 			try {
 				Text obj = Text.class.newInstance();
-				obj.readFields(datainput);
+				obj.readFields(datainput);				
 				this.add(obj);
 			} catch (InstantiationException e) {
 				e.printStackTrace();
