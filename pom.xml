@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.s1mbi0se.hadoop</groupId>
 	<artifactId>CSVInputFormat</artifactId>
-	<version>0.1</version>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 	<build>
 		<plugins>
