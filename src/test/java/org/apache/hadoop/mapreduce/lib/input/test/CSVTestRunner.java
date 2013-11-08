@@ -30,9 +30,9 @@ public class CSVTestRunner extends Configured implements Tool {
 			logger.info("ToolRunner finished running hadoop");
 
 		} catch (Throwable e) {
-			e.printStackTrace();
+            throw new Exception(e);
 		} finally {
-			logger.info("Quitting with error code " + res);
+			logger.info("Quitting with execution code " + res);
 			System.exit(res);
 		}
 	}

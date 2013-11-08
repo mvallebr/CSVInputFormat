@@ -46,9 +46,9 @@ public class ArrayListTextWritable extends ArrayList<Text> implements Writable {
 				obj.readFields(datainput);
 				this.add(obj);
 			} catch (InstantiationException e) {
-				e.printStackTrace();
+				throw new IOException(e);
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+                throw new IOException(e);
 			}
 		}
 	}
