@@ -1,15 +1,5 @@
 package org.apache.hadoop.mapreduce.lib.input;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-import java.util.zip.ZipInputStream;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -21,6 +11,16 @@ import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.zip.ZipInputStream;
 
 /**
  * Reads a CSV line. CSV files could be multiline, as they may have line breaks
@@ -163,12 +163,18 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
 	 */
 	protected void foundDelimiter(StringBuffer sb, List<Text> values, boolean takeDelimiterOut)
 			throws UnsupportedEncodingException {
+
+        //remove trailing LF
+        if (sb.length() > 0 && sb.charAt(sb.length()-1) == '\n'){
+            sb.deleteCharAt(sb.length()-1);
+        }
+
 		// Found a real delimiter
 		Text text = new Text();
 		String val = (takeDelimiterOut) ? sb.substring(0, sb.length() - separator.length()) : sb.toString();
 		if (val.startsWith(delimiter) && val.endsWith(delimiter)) {
 			val = (val.length() - (2 * delimiter.length()) > 0) ? val.substring(delimiter.length(), val.length()
-					- (2 * delimiter.length())) : "";
+					-  delimiter.length()) : "";
 		}
 		text.append(val.getBytes("UTF-8"), 0, val.length());
 		values.add(text);
