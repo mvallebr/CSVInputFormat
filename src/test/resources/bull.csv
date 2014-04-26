@@ -1,0 +1,41 @@
+ID do Cliente;CPF;Nome;Sobrenome;Nascimento;Cliente Desde;Cliente Tipo;Status Pagamento;òltima Compra;Altura;Peso;Cor;Cidade;Marca Carro;Ano Carro
+1;22833930860;Gabriel;Menegatti;07/03/87;01/02/13;A;Adimplente;01/03/13;1,87;105;Branca;So Paulo;Honda;2010
+2;22833930870;Josefina;Santos;08/03/86;01/03/13;C;Inadimplente;02/03/13;1,8;100;Parda;Rio Claro;KIA;2010
+3;22833930880;Murici;Parreira;19/03/85;01/01/13;D;Inadimplente;03/03/13;1,82;90;Negro;Campinas;BMW;2012
+4;22833930890;Carlos Alberto;Ramalho;21/03/81;01/04/12;A;Adimplente;04/03/13;1,83;160;Branca;Rio de Janeiro;NISSAN;2013
+5;22833930800;Fuckmaster;da Silva;07/03/90;01/02/12;E;Inadimplente;05/03/13;1,85;70;Branca;Sorocaba;VW;2009
+6;22833930830;Daniel;Silva;01/05/90;22/02/13;F;Adimplente;22/03/13;1,9;92;Branca;Ribeiro Preto;Hyundai;2011
+7;22833930820;Felipe;Silva;13/03/84;15/03/13;F;Inadimplente;22/03/13;1,92;65;Parda;Concrdia;Ford;2012
+8;22833930810;Carlos;Palatino;07/03/87;05/01/13;G;Inadimplente;21/03/13;2;70;Negro;So Jos dos Campos;FIAT;2010
+9;22833930800;Augusto;Santos;08/03/86;07/04/12;A;Adimplente;25/04/13;1,87;73;Branca;Santo Antonio dos Pinhais;Hyundai;2010
+10;22833930790;Jos;Pereira;19/03/85;25/02/12;B;Inadimplente;22/04/13;1,8;105;Branca;So Paulo;Hyundai;2012
+11;22833930780;Gabriel;Albuquerque;21/03/81;12/02/13;E;Adimplente;01/03/13;1,82;100;Branca;So Paulo;Honda;2013
+12;22833930770;Gabriel;Nascimento da Silva Xevier;07/03/90;01/03/13;A;Inadimplente;02/03/13;1,83;90;Parda;So Paulo;KIA;2009
+13;22833930760;Marcelo;Menegatti;01/05/90;01/01/13;C;Inadimplente;03/03/13;1,85;160;Negro;Rio Claro;BMW;2011
+14;22833930750;Marcelo;Santos;13/03/84;22/02/13;D;Adimplente;04/03/13;1,9;70;Branca;Campinas;NISSAN;2012
+15;22833930740;Matheus;Parreira;07/03/87;15/03/13;A;Inadimplente;05/03/13;1,92;92;Branca;Rio de Janeiro;VW;2012
+16;22833930730;Maria;Ramalho;08/03/86;05/01/13;E;Adimplente;22/03/13;2;65;Branca;Sorocaba;Hyundai;2010
+17;22833930720;Carlos;da Silva;19/03/85;07/04/12;F;Inadimplente;22/03/13;1,87;70;Parda;Ribeiro Preto;Ford;2010
+18;22833930710;Augusto;Silva;21/03/81;25/02/12;F;Inadimplente;21/03/13;1,8;73;Negro;Concrdia;FIAT;2012
+19;22833930700;Fernanda;Silva;07/03/90;12/02/13;G;Adimplente;25/04/13;1,82;105;Branca;So Jos dos Campos;Hyundai;2013
+20;22833930690;Fernando;Palatino;01/05/90;01/03/13;A;Inadimplente;22/04/13;1,83;100;Branca;Santo Antonio dos Pinhais;Hyundai;2009
+21;22833930680;Josefina;Santos;13/03/84;01/01/13;B;Adimplente;01/03/13;1,85;90;Branca;So Paulo;Honda;2011
+22;22833930670;Murici;Pereira;07/03/87;22/02/13;E;Inadimplente;02/03/13;1,9;160;Parda;So Paulo;KIA;2012
+23;22833930660;Carlos Alberto;Albuquerque;08/03/86;15/03/13;A;Inadimplente;03/03/13;1,92;70;Negro;So Paulo;BMW;2010
+24;22833930650;Fuckmaster;Nascimento da Silva Xevier;19/03/85;05/01/13;C;Adimplente;04/03/13;2;92;Branca;Rio Claro;NISSAN;2010
+25;22833930640;Daniel;Menegatti;21/03/81;07/04/12;D;Inadimplente;05/03/13;1,87;65;Branca;Campinas;VW;2012
+26;22833930630;Felipe;Santos;07/03/90;25/02/12;A;Adimplente;22/03/13;1,8;70;Branca;Rio de Janeiro;Hyundai;2013
+27;22833930620;Carlos;Parreira;01/05/90;12/02/13;E;Inadimplente;22/03/13;1,82;73;Parda;Sorocaba;Ford;2009
+28;22833930610;Augusto;Ramalho;13/03/84;01/03/13;F;Inadimplente;21/03/13;1,83;105;Negro;Ribeiro Preto;FIAT;2011
+29;22833930600;Jos;da Silva;07/03/87;01/01/13;F;Adimplente;25/04/13;1,85;100;Branca;Concrdia;Hyundai;2012
+30;22833930590;Gabriel;Silva;08/03/86;22/02/13;G;Inadimplente;22/04/13;1,9;90;Branca;So Jos dos Campos;Hyundai;2010
+31;22833930580;Gabriel;Silva;19/03/85;15/03/13;A;Adimplente;01/03/13;1,92;160;Branca;Santo Antonio dos Pinhais;Honda;2010
+32;22833930570;Marcelo;Palatino;21/03/81;05/01/13;B;Inadimplente;02/03/13;2;70;Parda;So Paulo;KIA;2012
+33;22833930560;Marcelo;Santos;07/03/90;07/04/12;E;Inadimplente;03/03/13;1,87;92;Negro;So Paulo;BMW;2013
+34;22833930550;Matheus;Pereira;01/05/90;25/02/12;A;Adimplente;04/03/13;1,8;65;Branca;So Paulo;NISSAN;2009
+35;22833930540;Maria;Albuquerque;13/03/84;12/02/13;C;Inadimplente;05/03/13;1,82;70;Branca;Rio Claro;VW;2011
+36;22833930530;Carlos;Nascimento da Silva Xevier;07/03/87;01/03/13;D;Adimplente;22/03/13;1,83;73;Branca;Campinas;Hyundai;2012
+37;22833930520;Augusto;Menegatti;08/03/86;01/01/13;A;Inadimplente;22/03/13;1,85;70;Parda;Rio de Janeiro;Ford;2010
+38;22833930510;Fernanda;Santos;19/03/85;22/02/13;E;Inadimplente;21/03/13;1,9;92;Negro;Sorocaba;FIAT;2010
+39;22833930500;Fernando;Parreira;21/03/81;15/03/13;F;Adimplente;25/04/13;1,92;65;Branca;Ribeiro Preto;Hyundai;2012
+40;22833930490;Josefina;Ramalho;07/03/90;05/01/13;F;Adimplente;22/04/13;2;100;Branca;Concrdia;Hyundai;2013

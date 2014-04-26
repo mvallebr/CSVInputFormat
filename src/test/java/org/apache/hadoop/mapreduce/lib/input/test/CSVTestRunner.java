@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 public class CSVTestRunner extends Configured implements Tool {
 	private static final Logger logger = Logger.getLogger(CSVTestRunner.class.getName());
 
-	private static final String INPUT_PATH_PREFIX = "./src/test/resources/";
+	private static final String INPUT_PATH_PREFIX = "./src/test/resources/bull.csv";
 	//private static final String INPUT_PATH_PREFIX = "/tmp/importer_tests/";
 
 	public static void main(String[] args) throws Exception {
@@ -30,22 +30,27 @@ public class CSVTestRunner extends Configured implements Tool {
 			logger.info("ToolRunner finished running hadoop");
 
 		} catch (Throwable e) {
-			e.printStackTrace();
+            throw new Exception(e);
 		} finally {
-			logger.info("Quitting with error code " + res);
+			logger.info("Quitting with execution code " + res);
 			System.exit(res);
 		}
 	}
 
 	public int run(String[] args) throws Exception {
 
+		
 		getConf().set(CSVLineRecordReader.FORMAT_DELIMITER, "\"");
-		getConf().set(CSVLineRecordReader.FORMAT_SEPARATOR, ",");
+		getConf().set(CSVLineRecordReader.FORMAT_SEPARATOR, ";");
 		getConf().setInt(CSVNLineInputFormat.LINES_PER_MAP, 40000);
 		getConf().setBoolean(CSVLineRecordReader.IS_ZIPFILE, false);
 		Job csvJob = new Job(getConf(), "csv_test_job");
 		csvJob.setJarByClass(CSVTestRunner.class);
 		csvJob.setNumReduceTasks(0);		
+		
+		MultithreadedMapper.setMapperClass(csvJob, TestMapper.class);
+		MultithreadedMapper.setNumberOfThreads(csvJob, 8);
+		
 		MultithreadedMapper.setMapperClass(csvJob, TestMapper.class);
 		MultithreadedMapper.setNumberOfThreads(csvJob, 1);
 		csvJob.setMapperClass(MultithreadedMapper.class);
