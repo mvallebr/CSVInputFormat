@@ -124,7 +124,7 @@ public class CSVNLineInputFormat extends FileInputFormat<LongWritable, List<Text
 					if (begin == 0) {
 						splits.add(new FileSplit(fileName, begin, length - 1, new String[] {}));
 					} else {
-						splits.add(new FileSplit(fileName, begin, length - 1, new String[] {}));
+						splits.add(new FileSplit(fileName, begin - 1, length, new String[] {}));
 					}
 					begin += length;
 					length = 0;
