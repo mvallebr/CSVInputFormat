@@ -1,6 +1,8 @@
 CSVInputFormat
 ==============
 
+NOTE: I haven't been maintaining this project for a while. I am keen to accept contributions to it, but I haven't been testing this in any production environment and I don't currently have time and resources to do so. I am glad to see people still using this, but use it at your own risk.
+
 Input format for hadoop able to read multiline CSVs
 
 Run BasicTest.java to see it working. Check src/test/resource/test.csv to see a multiline demofile.
