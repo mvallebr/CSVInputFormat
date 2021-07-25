@@ -183,6 +183,10 @@ public class CSVLineRecordReader extends RecordReader<LongWritable, List<Text>> 
         if (sb.length() > 0 && sb.charAt(sb.length()-1) == '\n'){
             sb.deleteCharAt(sb.length()-1);
         }
+		// remove also trailing CR if it is present
+		if (sb.length() > 0 && sb.charAt(sb.length()-1) == '\r'){
+			sb.deleteCharAt(sb.length()-1);
+		}
 
 		// Found a real delimiter
 		Text text = new Text();
