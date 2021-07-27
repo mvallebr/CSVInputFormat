@@ -14,67 +14,57 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 public class CSVTestRunner extends Configured implements Tool {
-	private static final Logger logger = Logger.getLogger(CSVTestRunner.class.getName());
+  private static final Logger logger = Logger.getLogger(CSVTestRunner.class.getName());
 
-	private static final String INPUT_PATH_PREFIX = "./src/test/resources/bull.csv";
-	//private static final String INPUT_PATH_PREFIX = "/tmp/importer_tests/";
+  private static final String INPUT_PATH_PREFIX = "./src/test/resources/bull.csv";
+  // private static final String INPUT_PATH_PREFIX = "/tmp/importer_tests/";
 
-	public static void main(String[] args) throws Exception {
-		int res = -1;
-		try {
-			logger.info("Initializing CSV Test Runner");
-			CSVTestRunner importer = new CSVTestRunner();
+  public CSVTestRunner() {
+    this(null);
+  }
 
-			// Let ToolRunner handle generic command-line options and run hadoop
-			res = ToolRunner.run(new Configuration(), importer, args);
-			logger.info("ToolRunner finished running hadoop");
+  public CSVTestRunner(Configuration conf) {
+    super(conf);
+  }
 
-		} catch (Throwable e) {
-            throw new Exception(e);
-		} finally {
-			logger.info("Quitting with execution code " + res);
-			System.exit(res);
-		}
-	}
+  public static void main(String[] args) throws Exception {
+    int res = -1;
+    logger.info("Initializing CSV Test Runner");
+    CSVTestRunner importer = new CSVTestRunner();
 
-	public int run(String[] args) throws Exception {
+    // Let ToolRunner handle generic command-line options and run hadoop
+    res = ToolRunner.run(new Configuration(), importer, args);
+    logger.info("ToolRunner finished running hadoop with res code " + res);
+  }
 
-		
-		getConf().set(CSVLineRecordReader.FORMAT_DELIMITER, "\"");
-		getConf().set(CSVLineRecordReader.FORMAT_SEPARATOR, ";");
-		getConf().setInt(CSVNLineInputFormat.LINES_PER_MAP, 40000);
-		getConf().setBoolean(CSVLineRecordReader.IS_ZIPFILE, false);
-		Job csvJob = new Job(getConf(), "csv_test_job");
-		csvJob.setJarByClass(CSVTestRunner.class);
-		csvJob.setNumReduceTasks(0);		
-		
-		MultithreadedMapper.setMapperClass(csvJob, TestMapper.class);
-		MultithreadedMapper.setNumberOfThreads(csvJob, 8);
-		
-		MultithreadedMapper.setMapperClass(csvJob, TestMapper.class);
-		MultithreadedMapper.setNumberOfThreads(csvJob, 1);
-		csvJob.setMapperClass(MultithreadedMapper.class);
-		// To run without multithread, use the following line instead of the 3
-		// above
-		// csvJob.setMapperClass(TestMapper.class);		
-		csvJob.setInputFormatClass(CSVNLineInputFormat.class);
-		csvJob.setOutputFormatClass(NullOutputFormat.class);
-		FileInputFormat.setInputPaths(csvJob, new Path(INPUT_PATH_PREFIX));
-		logger.info("Process will begin");
-		
-		csvJob.waitForCompletion(true);
+  public int run(String[] args) throws Exception {
 
-		logger.info("Process ended");
+    getConf().set(CSVLineRecordReader.FORMAT_DELIMITER, "\"");
+    getConf().set(CSVLineRecordReader.FORMAT_SEPARATOR, ";");
+    getConf().setInt(CSVNLineInputFormat.LINES_PER_MAP, 40000);
+    getConf().setBoolean(CSVLineRecordReader.IS_ZIPFILE, false);
+    Job csvJob = new Job(getConf(), "csv_test_job");
+    csvJob.setJarByClass(CSVTestRunner.class);
+    csvJob.setNumReduceTasks(0);
 
-		return 0;
-	}
+    MultithreadedMapper.setMapperClass(csvJob, TestMapper.class);
+    MultithreadedMapper.setNumberOfThreads(csvJob, 8);
 
-	public CSVTestRunner() {
-		this(null);
-	}
+    MultithreadedMapper.setMapperClass(csvJob, TestMapper.class);
+    MultithreadedMapper.setNumberOfThreads(csvJob, 1);
+    csvJob.setMapperClass(MultithreadedMapper.class);
+    // To run without multithread, use the following line instead of the 3
+    // above
+    // csvJob.setMapperClass(TestMapper.class);
+    csvJob.setInputFormatClass(CSVNLineInputFormat.class);
+    csvJob.setOutputFormatClass(NullOutputFormat.class);
+    FileInputFormat.setInputPaths(csvJob, new Path(INPUT_PATH_PREFIX));
+    logger.info("Process will begin");
 
-	public CSVTestRunner(Configuration conf) {
-		super(conf);
-	}
+    csvJob.waitForCompletion(true);
 
+    logger.info("Process ended");
+
+    return 0;
+  }
 }
